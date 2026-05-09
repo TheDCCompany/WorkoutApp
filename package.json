@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/import-exercises.ts",
-    "db:test-users": "tsx scripts/create-test-users.ts"
+    "db:test-users": "tsx scripts/create-test-users.ts",
+    "smoke": "tsx scripts/smoke-test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
