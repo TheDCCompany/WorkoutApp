@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function Home() {
@@ -6,21 +7,19 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return (
-    <main className="mx-auto max-w-md px-4 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Workout App</h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        Daily hypertrophy planner.
-      </p>
-      <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-4 text-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <p className="font-medium">Status</p>
-        <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-          {user ? `Signed in as ${user.email}` : "Not signed in"}
-        </p>
-      </div>
-      <p className="mt-6 text-xs text-zinc-500">
-        Scaffold milestone — auth, onboarding, and the dashboard land next.
-      </p>
-    </main>
-  );
+  // Proxy guarantees we have a user here, but be defensive.
+  if (!user) redirect("/login");
+
+  // Send users who haven't onboarded straight into the onboarding flow.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarded_at")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.onboarded_at) {
+    redirect("/onboarding");
+  }
+
+  redirect("/dashboard");
 }
